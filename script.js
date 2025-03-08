@@ -1,6 +1,6 @@
-// Import Firebase functions
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+// Import Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -16,40 +16,84 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Function to fetch member details
-async function fetchMemberDetails() {
-    const nameInput = document.getElementById("nameInput").value.trim();
-    const accNumInput = document.getElementById("accountNumberInput").value.trim();
+/**
+ * Fetch member details and transaction history
+ */
+async function fetchDetails() {
+    const name = document.getElementById("nameInput").value.trim();
+    const accountNumber = document.getElementById("accountInput").value.trim();
 
-    if (!nameInput || !accNumInput) {
+    if (!name || !accountNumber) {
         alert("Please enter both Name and Account Number.");
         return;
     }
 
-    // Reference the document in Firestore
-    const docRef = doc(db, "members", accNumInput);
-    const docSnap = await getDoc(docRef);
+    try {
+        // Fetch member details
+        const memberRef = doc(db, "members", accountNumber);
+        const memberSnap = await getDoc(memberRef);
 
-    if (docSnap.exists()) {
-        const data = docSnap.data();
+        if (memberSnap.exists()) {
+            const memberData = memberSnap.data();
+            document.getElementById("savings").innerText = memberData.Savings || "0";
+            document.getElementById("loanInterest").innerText = memberData.LoanInterest || "0";
+            document.getElementById("loanPaid").innerText = memberData.LoanPaid || "0";
+            document.getElementById("penalty").innerText = memberData.Penalty || "0";
+            document.getElementById("loanTaken").innerText = memberData.LoanTaken || "0";
 
-        // Check if the name matches (for additional verification)
-        if (data.Name.toLowerCase() !== nameInput.toLowerCase()) {
-            alert("No matching records found for this Name and Account Number.");
-            return;
+            // Fetch transaction history
+            await fetchTransactions(accountNumber);
+        } else {
+            alert("No member found with this Account Number.");
         }
-
-        // Update the UI with fetched details
-        document.getElementById("savings").innerText = `💰 Savings: ₹${data.Savings}`;
-        document.getElementById("loanInterest").innerText = `📊 Loan Interest: ₹${data.LoanInterest}`;
-        document.getElementById("loanPaid").innerText = `✅ Loan Paid: ₹${data.LoanPaid}`;
-        document.getElementById("penalty").innerText = `⚠️ Penalty: ₹${data.Penalty}`;
-        document.getElementById("loanTaken").innerText = `💳 Loan Taken: ₹${data.LoanTaken}`;
-
-    } else {
-        alert("No member found with the given Account Number.");
+    } catch (error) {
+        console.error("❌ Error fetching details:", error);
+        alert("Error fetching details. Please try again.");
     }
 }
 
-// Attach event listener to the Fetch button
-document.getElementById("fetchButton").addEventListener("click", fetchMemberDetails);
+/**
+ * Fetch transaction history for a member
+ */
+async function fetchTransactions(accountNumber) {
+    const transactionsTable = document.getElementById("transactionTable");
+    transactionsTable.innerHTML = "<tr><td colspan='4'>Loading transactions...</td></tr>";
+
+    try {
+        const transactionsRef = collection(db, "transactions");
+        const q = query(transactionsRef, where("AccountNumber", "==", accountNumber));
+        const querySnapshot = await getDocs(q);
+
+        transactionsTable.innerHTML = "";
+
+        if (querySnapshot.empty) {
+            transactionsTable.innerHTML = "<tr><td colspan='4'>No transactions found.</td></tr>";
+        } else {
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const row = `
+                    <tr>
+                        <td>${data.date || "--"}</td>
+                        <td>${data.description || "--"}</td>
+                        <td>${data.amount || "--"}</td>
+                        <td>${data.type || "--"}</td>
+                    </tr>`;
+                transactionsTable.innerHTML += row;
+            });
+        }
+    } catch (error) {
+        console.error("❌ Error fetching transactions:", error);
+        transactionsTable.innerHTML = "<tr><td colspan='4'>Error loading transactions.</td></tr>";
+    }
+}
+
+/**
+ * Print the passbook
+ */
+function printPassbook() {
+    window.print();
+}
+
+// Expose functions globally
+window.fetchDetails = fetchDetails;
+window.printPassbook = printPassbook;
