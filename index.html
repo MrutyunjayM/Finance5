@@ -1,61 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="kn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📖 Finance Passbook</title>
     <link rel="stylesheet" href="styles.css">
-    <script defer src="script.js" type="module"></script>
 </head>
 <body>
 
+    <!-- 🔖 Kannada Header -->
     <header>
         <h1>🔖 ಶ್ರೀ ಗಾಯತ್ರಿ ದೇವಿ ಸ್ವ ಸಹಾಯ ಸಂಘ</h1>
         <h2>📖 Finance Passbook</h2>
     </header>
 
-    <main>
-        <!-- 🔍 User Input Section -->
-        <section class="lookup">
-            <h2>🔍 Transaction Lookup</h2>
-            <input type="text" id="name" placeholder="Enter Name" required>
-            <input type="number" id="accountNumber" placeholder="Enter Account Number" required>
-            <button onclick="fetchDetails()">🔍 Fetch Transactions</button>
-        </section>
+    <!-- 🔍 Transaction Lookup Section -->
+    <div class="lookup">
+        <h3>🔍 Transaction Lookup</h3>
+        <input type="text" id="nameInput" placeholder="Enter Name">
+        <input type="text" id="accountNumberInput" placeholder="Enter Account Number">
+        <button id="fetchButton">🔍 Fetch Transactions</button>
+    </div>
 
-        <!-- 📋 Member Details -->
-        <section class="details">
-            <h2>📋 Member Details</h2>
-            <p id="savings">💰 Savings: --</p>
-            <p id="loanInterest">📊 Loan Interest: --</p>
-            <p id="loanPaid">✅ Loan Paid: --</p>
-            <p id="penalty">⚠️ Penalty: --</p>
-            <p id="loanTaken">💳 Loan Taken: --</p>
-        </section>
+    <!-- 📋 Member Details Section -->
+    <div class="details">
+        <h3>📋 Member Details</h3>
+        <p id="savings">💰 Savings: --</p>
+        <p id="loanInterest">📊 Loan Interest: --</p>
+        <p id="loanPaid">✅ Loan Paid: --</p>
+        <p id="penalty">⚠️ Penalty: --</p>
+        <p id="loanTaken">💳 Loan Taken: --</p>
+    </div>
 
-        <!-- 📑 Transaction History -->
-        <section class="transactions">
-            <h2>📑 Transaction History</h2>
-            <table id="transactionTable">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Type</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="4">No transactions found.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <!-- 🖨️ Print Passbook -->
-        <button onclick="printPassbook()" class="print-btn">🖨️ Print Passbook</button>
-    </main>
-
+    <script src="script.js" type="module"></script>
 </body>
 </html>
